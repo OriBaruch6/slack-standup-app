@@ -5,7 +5,7 @@
 ![Architecture](docs/architecture.png)
 
 ## Slack interactive flow and endpoints
-
+  - Slack Documentation - https://docs.slack.dev/reference/interaction-payloads
 - **1) Job posts a button to a channel**
   - Slack Web API: `chat.postMessage`
 
