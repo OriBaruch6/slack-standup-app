@@ -1,24 +1,32 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Architecture
 
-Things you may want to cover:
+![Architecture](docs/architecture.png)
 
-* Ruby version
+## Slack interactive flow and endpoints
 
-* System dependencies
+- **1) Job posts a button to a channel**
+  - Slack Web API: `chat.postMessage`
 
-* Configuration
+- **2) User clicks the button**
+  - Service endpoint: `POST /slack/interactive`
+  - Payload: `type: "block_actions"` with a short‑lived `trigger_id`.
 
-* Database creation
+- **3) Open the modal immediately**
+  - Request is validated (Slack signature and timestamp).
+  - Slack Web API: `views.open` using the `trigger_id` from step 2.
+  - Do not wait for `view_submission`; `trigger_id` expires quickly.
 
-* Database initialization
+- **4) User submits the modal**
+  - Service endpoint: `POST /slack/interactive`
+  - Payload: `type: "view_submission"`; form data in `view.state.values`.
 
-* How to run the test suite
+- **5) Save and acknowledge**
+  - The service parses `view.state.values` and persists the standup (user, channel, date, yesterday, today, blocker, etc.).
+  - The service responds with a minimal JSON ack:
+    ```json
+    { "response_action": "clear" }
+    ```
+  - Optionally send a confirmation via `chat.postMessage`.
 
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
