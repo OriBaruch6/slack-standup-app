@@ -6,8 +6,12 @@
 
 ## Slack interactive flow and endpoints
   - Slack Documentation - https://docs.slack.dev/reference/interaction-payloads
+- Example request button (posted by the reminder job):
+
+
 - **1) Job posts a button to a channel**
   - Slack Web API: `chat.postMessage`
+
 
 - **2) User clicks the button**
   - Service endpoint: `POST /slack/interactive`
@@ -30,3 +34,15 @@
     ```
   - Optionally send a confirmation via `chat.postMessage`.
 
+Notes
+- The interactivity endpoint can also receive `type: "view_closed"` when a user closes the modal without submitting.
+
+
+## Request examples (visuals)
+
+
+First request – `chat.postMessage`
+
+![Open Standup Button](docs/open-standup.png)
+
+Step 3 – Open the modal
