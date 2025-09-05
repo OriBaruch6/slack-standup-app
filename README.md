@@ -46,3 +46,6 @@ First request – `chat.postMessage`
 ![Open Standup Button](docs/open-standup.png)
 
 Step 3 – Open the modal
+- After the button is clicked, the service calls `views.open` to display the standup modal:
+
+![Standup Modal](docs/standup-modal.png)

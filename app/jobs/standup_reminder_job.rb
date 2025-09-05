@@ -11,24 +11,10 @@ class StandupReminderJob < ApplicationJob
 
     message_texts = build_standup_text
     fallback_txt  = text.presence || message_texts[:fallback]
-
-    blocks = [
-      {
-        type: "section",
-        text: { type: "mrkdwn", text: "*#{message_texts[:headline]}*\n#{message_texts[:prompt]}" }
-      },
-      {
-        type: "actions",
-        elements: [
-          {
-            type: "button",
-            text: { type: "plain_text", text: "Open standup" },
-            action_id: "open_standup_modal",
-            value: "open"
-          }
-        ]
-      }
-    ]
+    blocks = SlackBlocks.standup_reminder_blocks(
+      headline: message_texts[:headline],
+      prompt: message_texts[:prompt]
+    )
 
     slack.post_message(channel: channel_id, text: fallback_txt, blocks: blocks)
   end

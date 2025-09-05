@@ -20,6 +20,15 @@ class SlackClient
 
     @client.chat_postMessage(payload)
   end
+
+  # Opens a Standup modal using POST method /api/views.open
+  # Params:
+  # - trigger_id: Short-lived ID from block_actions payload
+  # - view: Modal view definition hash
+  # Returns the Slack API response hash.
+  def open_modal(trigger_id:, view:)
+    @client.views_open(trigger_id: trigger_id, view: view)
+  end
 end
 
 
