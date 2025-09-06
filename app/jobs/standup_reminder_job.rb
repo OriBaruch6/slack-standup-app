@@ -9,11 +9,11 @@ class StandupReminderJob < ApplicationJob
   # - text: Optional override for fallback/plain text
   def perform(channel_id:, text: nil)
     # Skip if it's weekend (Saturday = 6, Sunday = 0)
-   # today = Date.current
-   # if today.saturday? || today.sunday?
-    # Rails.logger.info "Skipping standup reminder on weekend: #{today.strftime('%A')}"
-     # return
-    #end
+    today = Date.current
+    if today.saturday? || today.sunday?
+      Rails.logger.info "Skipping standup reminder on weekend: #{today.strftime('%A')}"
+      return
+    end
 
     slack = SlackClient.new
 
