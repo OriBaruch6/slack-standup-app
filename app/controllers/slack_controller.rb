@@ -81,7 +81,7 @@ class SlackController < ApplicationController
       response_action: "errors",
       errors: {
         "yesterday_block": "Please check your input and try again",
-        "today_block": "Please check your input and try again", 
+        "today_block": "Please check your input and try again",
         "blocker_block": "Please check your input and try again"
       }
     }

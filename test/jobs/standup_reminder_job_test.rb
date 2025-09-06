@@ -72,7 +72,6 @@ class StandupReminderJobTest < ActiveJob::TestCase
 
   test "should use custom text when provided" do
     custom_text = "Custom standup reminder message"
-    
     travel_to Date.new(2024, 1, 2) do # Tuesday
       assert_raises(Slack::Web::Api::Errors::ChannelNotFound) do
         StandupReminderJob.perform_now(channel_id: @channel_id, text: custom_text)

@@ -38,7 +38,7 @@ class SlackClientTest < ActiveSupport::TestCase
       @slack_client.post_message(
         channel: "C1234567890",
         text: "Test message",
-        blocks: [{ type: "section", text: { type: "mrkdwn", text: "Test" } }],
+        blocks: [ { type: "section", text: { type: "mrkdwn", text: "Test" } } ],
         thread_ts: "1234567890.123456"
       )
     end
@@ -71,7 +71,7 @@ class SlackClientTest < ActiveSupport::TestCase
       type: "modal",
       title: { type: "plain_text", text: "Test Modal" }
     }
-    
+
     # Test that the method raises an error when called
     # The actual Slack API call would be tested in integration tests
     assert_raises(Slack::Web::Api::Errors::SlackError) do
@@ -81,7 +81,7 @@ class SlackClientTest < ActiveSupport::TestCase
 
   test "get_user_info fetches user information" do
     user_id = "U1234567890"
-    
+
     # Test that the method raises an error when called
     # The actual Slack API call would be tested in integration tests
     assert_raises(Slack::Web::Api::Errors::SlackError) do
@@ -100,7 +100,7 @@ class SlackClientTest < ActiveSupport::TestCase
   test "open_modal lets errors bubble up" do
     trigger_id = "1234567890.1234567890.abcdef1234567890abcdef1234567890"
     view = { type: "modal" }
-    
+
     # Test that the method raises an error when called
     # The actual Slack API call would be tested in integration tests
     assert_raises(Slack::Web::Api::Errors::SlackError) do
@@ -110,7 +110,7 @@ class SlackClientTest < ActiveSupport::TestCase
 
   test "get_user_info lets errors bubble up" do
     user_id = "U1234567890"
-    
+
     # Test that the method raises an error when called
     # The actual Slack API call would be tested in integration tests
     assert_raises(Slack::Web::Api::Errors::SlackError) do

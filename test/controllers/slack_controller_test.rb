@@ -20,7 +20,7 @@ class SlackControllerTest < ActionDispatch::IntegrationTest
       user: { id: "U1234567890", team_id: "T1234567890" },
       container: { channel_id: "C1234567890" },
       trigger_id: "1234567890.1234567890.abcdef1234567890abcdef1234567890",
-      actions: [{ action_id: "open_standup_modal" }]
+      actions: [ { action_id: "open_standup_modal" } ]
     }
 
     # Test that the controller handles the request and returns 500 for API errors
@@ -154,7 +154,7 @@ class SlackControllerTest < ActionDispatch::IntegrationTest
       user: { id: "U1234567890", team_id: "T1234567890" },
       container: { channel_id: "C1234567890" },
       trigger_id: "1234567890.1234567890.abcdef1234567890abcdef1234567890",
-      actions: [{ action_id: "open_standup_modal" }]
+      actions: [ { action_id: "open_standup_modal" } ]
     }
 
     # Test that the controller handles the request and returns 500 for API errors
