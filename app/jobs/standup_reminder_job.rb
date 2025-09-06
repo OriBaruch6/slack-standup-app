@@ -47,7 +47,11 @@ def build_standup_text
   today     = Date.current
   formatted = today.strftime("%A, %B %-d")
   headline  = "Good morning :sunny: It's #{formatted}!"
-  prompt    = "It's standup time - share yesterday, today, and any blockers."
+  prompt = if today.monday?
+             "It's standup time - share Friday, today, and any blockers."
+           else
+             "It's standup time - share yesterday, today, and any blockers."
+           end
 
   { headline: headline, prompt: prompt, fallback: "#{headline} #{prompt}" }
 end

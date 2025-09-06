@@ -26,7 +26,7 @@ class SlackController < ApplicationController
   # Handle button clicks - open the standup modal
   def handle_block_actions(payload)
     trigger_id = payload["trigger_id"]
-    channel_id = payload["container"]["channel_id"] # Get from container
+    channel_id = payload["container"]["channel_id"]
 
     slack_client = SlackClient.new
     modal_view = SlackBlocks.standup_modal_view(channel_id: channel_id)
@@ -41,7 +41,7 @@ class SlackController < ApplicationController
     view_state = payload["view"]["state"]["values"]
     user_id = payload["user"]["id"]
     team_id = payload["team"]["id"]
-    channel_id = payload["view"]["private_metadata"] # Get from private_metadata
+    channel_id = payload["view"]["private_metadata"] 
     # Extract form values
     standup_data = extract_standup_data(view_state, user_id, channel_id)
 
@@ -51,7 +51,7 @@ class SlackController < ApplicationController
     # Save standup
     standup = Standup.create!(
       user_id: user_id,
-      channel_id: channel_id, # Now we have the actual channel_id!
+      channel_id: channel_id, 
       date: standup_data[:date],
       yesterday: standup_data[:yesterday],
       today: standup_data[:today],

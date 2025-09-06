@@ -41,6 +41,14 @@ module SlackBlocks
 
   # Build the standup modal view
   def self.standup_modal_view(channel_id: nil)
+    # Determine the label for "yesterday" based on current day
+    today = Date.current
+    yesterday_label = if today.monday?
+                       "On Friday"
+                     else
+                       "Yesterday"
+                     end
+
     {
       type: "modal",
       callback_id: STANDUP_CALLBACK_ID,
@@ -74,12 +82,12 @@ module SlackBlocks
             multiline: true,
             placeholder: {
               type: "plain_text",
-              text: "What did you accomplish yesterday?"
+              text: "What did you accomplish #{yesterday_label.downcase}?"
             }
           },
           label: {
             type: "plain_text",
-            text: "Yesterday"
+            text: yesterday_label
           }
         },
         {
