@@ -6,7 +6,7 @@ class User < ApplicationRecord
   validates :display_name, presence: true
   validates :real_name, presence: true
 
-  has_many :standups, dependent: :destroy
+  has_many :standups, foreign_key: :user_id, primary_key: :slack_user_id, dependent: :destroy
   belongs_to :team, foreign_key: :slack_user_team, primary_key: :slack_user_team
 
   scope :by_team, ->(team_id) { where(slack_user_team: team_id) }

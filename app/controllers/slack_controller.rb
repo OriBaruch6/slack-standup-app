@@ -23,6 +23,9 @@ class SlackController < ApplicationController
     rescue JSON::ParserError => e
       Rails.logger.error "Invalid JSON payload: #{e.message}"
       head :bad_request
+    rescue Slack::Web::Api::Errors::SlackError => e
+      Rails.logger.error "Slack API error: #{e.message}"
+      head :internal_server_error
     end
   end
 
@@ -72,6 +75,16 @@ class SlackController < ApplicationController
 
       # Return ack
       render json: { response_action: "clear" }
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.error "Validation error saving standup: #{e.message}"
+    render json: {
+      response_action: "errors",
+      errors: {
+        "yesterday_block": "Please check your input and try again",
+        "today_block": "Please check your input and try again", 
+        "blocker_block": "Please check your input and try again"
+      }
+    }
   end
 
   # Handle modal closed

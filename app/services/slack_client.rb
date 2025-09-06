@@ -1,6 +1,10 @@
 
 require "slack-ruby-client"
 
+# Custom error class for Slack API errors
+class SlackApiError < StandardError
+end
+
 #  Slack Web API used by jobs and controllers.
 class SlackClient
   def initialize(bot_token: ENV["SLACK_BOT_TOKEN"])
