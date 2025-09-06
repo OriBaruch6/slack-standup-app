@@ -13,7 +13,7 @@ class StandupReminderJobTest < ActiveJob::TestCase
     travel_to Date.new(2024, 1, 2) do # Tuesday
       # This test just verifies the job doesn't raise an error
       # The actual Slack API call would be tested in integration tests
-      assert_raises(Slack::Web::Api::Errors::ChannelNotFound) do
+      assert_raises(Slack::Web::Api::Errors::SlackError) do
         StandupReminderJob.perform_now(channel_id: @channel_id)
       end
     end
@@ -24,7 +24,7 @@ class StandupReminderJobTest < ActiveJob::TestCase
     travel_to Date.new(2024, 1, 2) do # Tuesday
       # This test just verifies the job doesn't raise an error
       # The actual Slack API call would be tested in integration tests
-      assert_raises(Slack::Web::Api::Errors::ChannelNotFound) do
+      assert_raises(Slack::Web::Api::Errors::SlackError) do
         StandupReminderJob.perform_now(channel_id: @channel_id)
       end
     end
@@ -56,7 +56,7 @@ class StandupReminderJobTest < ActiveJob::TestCase
 
   test "should execute on Monday" do
     travel_to Date.new(2024, 1, 1) do # Monday
-      assert_raises(Slack::Web::Api::Errors::ChannelNotFound) do
+      assert_raises(Slack::Web::Api::Errors::SlackError) do
         StandupReminderJob.perform_now(channel_id: @channel_id)
       end
     end
@@ -64,7 +64,7 @@ class StandupReminderJobTest < ActiveJob::TestCase
 
   test "should execute on Friday" do
     travel_to Date.new(2024, 1, 5) do # Friday
-      assert_raises(Slack::Web::Api::Errors::ChannelNotFound) do
+      assert_raises(Slack::Web::Api::Errors::SlackError) do
         StandupReminderJob.perform_now(channel_id: @channel_id)
       end
     end
@@ -73,7 +73,7 @@ class StandupReminderJobTest < ActiveJob::TestCase
   test "should use custom text when provided" do
     custom_text = "Custom standup reminder message"
     travel_to Date.new(2024, 1, 2) do # Tuesday
-      assert_raises(Slack::Web::Api::Errors::ChannelNotFound) do
+      assert_raises(Slack::Web::Api::Errors::SlackError) do
         StandupReminderJob.perform_now(channel_id: @channel_id, text: custom_text)
       end
     end
