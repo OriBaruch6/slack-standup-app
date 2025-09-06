@@ -5,19 +5,24 @@ class SlackController < ApplicationController
 
   # Handle Slack interactive components (buttons, modals, etc.)
   def interactive
-    payload = JSON.parse(params[:payload])
-    payload_type = payload["type"]
+    begin
+      payload = JSON.parse(params[:payload])
+      payload_type = payload["type"]
 
-    case payload_type
-    when "block_actions"
-      handle_block_actions(payload)
-    when "view_submission"
-      handle_view_submission(payload)
-    when "view_closed"
-      handle_view_closed(payload)
-    else
-      Rails.logger.warn "Unknown payload type: #{payload_type}"
-      head :ok
+      case payload_type
+      when "block_actions"
+        handle_block_actions(payload)
+      when "view_submission"
+        handle_view_submission(payload)
+      when "view_closed"
+        handle_view_closed(payload)
+      else
+        Rails.logger.warn "Unknown payload type: #{payload_type}"
+        head :ok
+      end
+    rescue JSON::ParserError => e
+      Rails.logger.error "Invalid JSON payload: #{e.message}"
+      head :bad_request
     end
   end
 
@@ -28,40 +33,45 @@ class SlackController < ApplicationController
     trigger_id = payload["trigger_id"]
     channel_id = payload["container"]["channel_id"]
 
-    slack_client = SlackClient.new
-    modal_view = SlackBlocks.standup_modal_view(channel_id: channel_id)
+    begin
+      slack_client = SlackClient.new
+      modal_view = SlackBlocks.standup_modal_view(channel_id: channel_id)
 
-    slack_client.open_modal(trigger_id: trigger_id, view: modal_view)
-
-    head :ok
+      slack_client.open_modal(trigger_id: trigger_id, view: modal_view)
+      head :ok
+    rescue SlackApiError => e
+      Rails.logger.error "Failed to open modal: #{e.message}"
+      head :internal_server_error
+    end
   end
 
   # Handle modal submission - save the standup
   def handle_view_submission(payload)
-    view_state = payload["view"]["state"]["values"]
-    user_id = payload["user"]["id"]
-    team_id = payload["team"]["id"]
-    channel_id = payload["view"]["private_metadata"]
-    # Extract form values
-    standup_data = extract_standup_data(view_state, user_id, channel_id)
+      view_state = payload["view"]["state"]["values"]
+      user_id = payload["user"]["id"]
+      team_id = payload["team"]["id"]
+      channel_id = payload["view"]["private_metadata"]
 
-    # Find or create user
-    user = find_or_create_user(user_id, team_id)
+      # Extract form values
+      standup_data = extract_standup_data(view_state, user_id, channel_id)
 
-    # Save standup
-    standup = Standup.create!(
-      user_id: user_id,
-      channel_id: channel_id,
-      date: standup_data[:date],
-      yesterday: standup_data[:yesterday],
-      today: standup_data[:today],
-      blocker: standup_data[:blocker]
-    )
+      # Find or create user
+      user = find_or_create_user(user_id, team_id)
 
-    Rails.logger.info "Standup saved: #{standup.id}"
+      # Save standup
+      standup = Standup.create!(
+        user_id: user_id,
+        channel_id: channel_id,
+        date: standup_data[:date],
+        yesterday: standup_data[:yesterday],
+        today: standup_data[:today],
+        blocker: standup_data[:blocker]
+      )
 
-    # Return ack
-    render json: { response_action: "clear" }
+      Rails.logger.info "Standup saved: #{standup.id}"
+
+      # Return ack
+      render json: { response_action: "clear" }
   end
 
   # Handle modal closed
@@ -90,12 +100,29 @@ class SlackController < ApplicationController
       # Find or create team first
       team = Team.find_or_create_by(slack_user_team: team_id)
 
+      # Get real user info from Slack
+      begin
+        slack_client = SlackClient.new
+        user_info_response = slack_client.get_user_info(user_id: user_id)
+        user_info = user_info_response["user"]
+
+        # Extract names
+        display_name = user_info.dig("profile", "display_name") ||
+                      user_info["real_name"] ||
+                      user_info["name"]
+
+        real_name = user_info["real_name"] ||
+                   user_info["name"]
+      rescue SlackApiError => e
+        Rails.logger.warn "Failed to get user info for #{user_id}: #{e.message}"
+      end
+
       # User Creation
       user = User.create!(
         slack_user_id: user_id,
         slack_user_team: team_id,
-        display_name: "User #{user_id}",
-        real_name: "User #{user_id}"
+        display_name: display_name,
+        real_name: real_name
       )
     end
 

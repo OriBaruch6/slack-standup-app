@@ -29,4 +29,12 @@ class SlackClient
   def open_modal(trigger_id:, view:)
     @client.views_open(trigger_id: trigger_id, view: view)
   end
+
+  # Gets user information from Slack using POST method /api/users.info
+  # Params:
+  # - user_id: Slack user ID
+  # Returns the Slack API response hash with user details.
+  def get_user_info(user_id:)
+    @client.users_info(user: user_id)
+  end
 end

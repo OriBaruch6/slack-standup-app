@@ -104,10 +104,7 @@ StandupReminderJob.perform_now(channel_id: "C09DJNCLTU6")
 4. **Standup data is saved** to the database
 
 #### Demo Video
-<video controls width="100%">
-  <source src="video/standup-video.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Standup Demo](video/standup-demo.gif)
 
 ## 🏗️ Architecture
 
@@ -174,8 +171,419 @@ The app implements a complete interactive flow using Slack's Block Kit and inter
 Job → Slack Message → User Click → Modal → Form Submit → Database
 ```
 
+## 📋 API Requests & Responses
+
+### Outgoing Requests (App → Slack)
+
+#### 1. `chat.postMessage` - Send Standup Reminder
+**Endpoint:** `POST https://slack.com/api/chat.postMessage`
+
+**Request Payload:**
+```json
+{
+  "channel": "C09DJNCLTU6",
+  "text": "It's standup time - share yesterday, today, and any blockers.",
+  "blocks": [
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "It's standup time - share yesterday, today, and any blockers."
+      }
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Open standup"
+          },
+          "action_id": "open_standup_modal"
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "ok": true,
+  "channel": "C09DJNCLTU6",
+  "ts": "1234567890.123456",
+  "message": {
+    "type": "message",
+    "subtype": null,
+    "text": "It's standup time - share yesterday, today, and any blockers.",
+    "ts": "1234567890.123456",
+    "username": "standup-bot",
+    "bot_id": "B1234567890"
+  }
+}
+```
+
+#### 2. `users.info` - Get User Information
+**Endpoint:** `POST https://slack.com/api/users.info`
+
+**Request Payload:**
+```json
+{
+  "user": "U012A3CDE"
+}
+```
+
+**Response:**
+```json
+{
+  "ok": true,
+  "user": {
+    "id": "U012A3CDE",
+    "team_id": "T012AB3C4",
+    "name": "spengler",
+    "deleted": false,
+    "color": "9f69e7",
+    "real_name": "Egon Spengler",
+    "tz": "America/Los_Angeles",
+    "tz_label": "Pacific Daylight Time",
+    "tz_offset": -25200,
+    "profile": {
+      "avatar_hash": "ge3b51ca72de",
+      "status_text": "Print is dead",
+      "status_emoji": ":books:",
+      "real_name": "Egon Spengler",
+      "display_name": "spengler",
+      "first_name": "Egon",
+      "last_name": "Spengler",
+      "image_24": "https://...",
+      "image_32": "https://...",
+      "image_48": "https://...",
+      "image_72": "https://...",
+      "image_192": "https://...",
+      "image_512": "https://..."
+    }
+  }
+}
+```
+
+#### 3. `views.open` - Open Standup Modal
+**Endpoint:** `POST https://slack.com/api/views.open`
+
+**Request Payload:**
+```json
+{
+  "trigger_id": "1234567890.1234567890.abcdef1234567890abcdef1234567890",
+  "view": {
+    "type": "modal",
+    "callback_id": "standup_modal",
+    "title": {
+      "type": "plain_text",
+      "text": "Daily Standup"
+    },
+    "submit": {
+      "type": "plain_text",
+      "text": "Submit"
+    },
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel"
+    },
+    "private_metadata": "C09DJNCLTU6",
+    "blocks": [
+      {
+        "type": "input",
+        "block_id": "yesterday_block",
+        "element": {
+          "type": "plain_text_input",
+          "action_id": "yesterday_input",
+          "multiline": true,
+          "placeholder": {
+            "type": "plain_text",
+            "text": "What did you accomplish yesterday?"
+          }
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "Yesterday"
+        }
+      },
+      {
+        "type": "input",
+        "block_id": "today_block",
+        "element": {
+          "type": "plain_text_input",
+          "action_id": "today_input",
+          "multiline": true,
+          "placeholder": {
+            "type": "plain_text",
+            "text": "What will you work on today?"
+          }
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "Today"
+        }
+      },
+      {
+        "type": "input",
+        "block_id": "blocker_block",
+        "element": {
+          "type": "plain_text_input",
+          "action_id": "blocker_input",
+          "multiline": true,
+          "placeholder": {
+            "type": "plain_text",
+            "text": "Any blockers or concerns?"
+          }
+        },
+        "label": {
+          "type": "plain_text",
+          "text": "Blockers"
+        },
+        "optional": true
+      }
+    ]
+  }
+}
+```
+
+**Response:**
+```json
+{
+  "ok": true,
+  "view": {
+    "id": "V1234567890",
+    "team_id": "T012AB3C4",
+    "type": "modal",
+    "title": {
+      "type": "plain_text",
+      "text": "Daily Standup"
+    },
+    "submit": {
+      "type": "plain_text",
+      "text": "Submit"
+    },
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel"
+    },
+    "blocks": [...],
+    "private_metadata": "C09DJNCLTU6",
+    "callback_id": "standup_modal",
+    "state": {
+      "values": {}
+    },
+    "hash": "1234567890.abcdef",
+    "clear_on_close": false,
+    "notify_on_close": false,
+    "root_view_id": "V1234567890",
+    "app_id": "A1234567890",
+    "external_id": "",
+    "app_installed_team_id": "T012AB3C4",
+    "bot_id": "B1234567890"
+  }
+}
+```
+
+### Incoming Requests (Slack → App)
+
+#### 1. `block_actions` - Button Click
+**Endpoint:** `POST /slack/interactive`
+
+**Request Payload:**
+```json
+{
+  "type": "block_actions",
+  "user": {
+    "id": "U012A3CDE",
+    "username": "spengler",
+    "name": "spengler",
+    "team_id": "T012AB3C4"
+  },
+  "api_app_id": "A1234567890",
+  "token": "verification_token",
+  "container": {
+    "type": "message",
+    "message_ts": "1234567890.123456",
+    "channel_id": "C09DJNCLTU6",
+    "is_ephemeral": false
+  },
+  "trigger_id": "1234567890.1234567890.abcdef1234567890abcdef1234567890",
+  "team": {
+    "id": "T012AB3C4",
+    "domain": "example"
+  },
+  "channel": {
+    "id": "C09DJNCLTU6",
+    "name": "general"
+  },
+  "response_url": "https://hooks.slack.com/actions/T012AB3C4/1234567890/abcdef1234567890abcdef1234567890",
+  "actions": [
+    {
+      "action_id": "open_standup_modal",
+      "block_id": "action_block",
+      "text": {
+        "type": "plain_text",
+        "text": "Open standup",
+        "emoji": true
+      },
+      "value": "click_me_123",
+      "type": "button",
+      "action_ts": "1234567890.123456"
+    }
+  ]
+}
+```
+
+#### 2. `view_submission` - Modal Form Submit
+**Endpoint:** `POST /slack/interactive`
+
+**Request Payload:**
+```json
+{
+  "type": "view_submission",
+  "team": {
+    "id": "T012AB3C4",
+    "domain": "example"
+  },
+  "user": {
+    "id": "U012A3CDE",
+    "username": "spengler",
+    "name": "spengler",
+    "team_id": "T012AB3C4"
+  },
+  "api_app_id": "A1234567890",
+  "token": "verification_token",
+  "trigger_id": "1234567890.1234567890.abcdef1234567890abcdef1234567890",
+  "view": {
+    "id": "V1234567890",
+    "team_id": "T012AB3C4",
+    "type": "modal",
+    "blocks": [...],
+    "private_metadata": "C09DJNCLTU6",
+    "callback_id": "standup_modal",
+    "state": {
+      "values": {
+        "yesterday_block": {
+          "yesterday_input": {
+            "type": "plain_text_input",
+            "value": "Worked on the new feature implementation"
+          }
+        },
+        "today_block": {
+          "today_input": {
+            "type": "plain_text_input",
+            "value": "Will continue with testing and documentation"
+          }
+        },
+        "blocker_block": {
+          "blocker_input": {
+            "type": "plain_text_input",
+            "value": "Waiting for design approval"
+          }
+        }
+      }
+    },
+    "hash": "1234567890.abcdef",
+    "title": {
+      "type": "plain_text",
+      "text": "Daily Standup"
+    },
+    "clear_on_close": false,
+    "notify_on_close": false,
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel"
+    },
+    "submit": {
+      "type": "plain_text",
+      "text": "Submit"
+    },
+    "previous_view_id": null,
+    "root_view_id": "V1234567890",
+    "app_id": "A1234567890",
+    "external_id": "",
+    "app_installed_team_id": "T012AB3C4",
+    "bot_id": "B1234567890"
+  },
+  "response_urls": []
+}
+```
+
+**Expected Response:**
+```json
+{
+  "response_action": "clear"
+}
+```
+
+#### 3. `view_closed` - Modal Closed
+**Endpoint:** `POST /slack/interactive`
+
+**Request Payload:**
+```json
+{
+  "type": "view_closed",
+  "team": {
+    "id": "T012AB3C4",
+    "domain": "example"
+  },
+  "user": {
+    "id": "U012A3CDE",
+    "username": "spengler",
+    "name": "spengler",
+    "team_id": "T012AB3C4"
+  },
+  "api_app_id": "A1234567890",
+  "token": "verification_token",
+  "view": {
+    "id": "V1234567890",
+    "team_id": "T012AB3C4",
+    "type": "modal",
+    "private_metadata": "C09DJNCLTU6",
+    "callback_id": "standup_modal",
+    "state": {
+      "values": {}
+    },
+    "hash": "1234567890.abcdef",
+    "title": {
+      "type": "plain_text",
+      "text": "Daily Standup"
+    },
+    "clear_on_close": false,
+    "notify_on_close": false,
+    "close": {
+      "type": "plain_text",
+      "text": "Cancel"
+    },
+    "submit": {
+      "type": "plain_text",
+      "text": "Submit"
+    },
+    "previous_view_id": null,
+    "root_view_id": "V1234567890",
+    "app_id": "A1234567890",
+    "external_id": "",
+    "app_installed_team_id": "T012AB3C4",
+    "bot_id": "B1234567890"
+  },
+  "is_cleared": false
+}
+```
+
+**Expected Response:**
+```json
+{
+  "response_action": "clear"
+}
+```
+
 ## 📚 Additional Resources
 
 - [Slack Block Kit Documentation](https://api.slack.com/block-kit)
 - [Slack Interactive Components](https://docs.slack.dev/reference/interaction-payloads)
+- [Slack users.info API Reference](https://docs.slack.dev/reference/methods/users.info/)
+- [Slack chat.postMessage API Reference](https://docs.slack.dev/reference/methods/chat.postMessage/)
 - [ngrok Documentation](https://ngrok.com/docs)
