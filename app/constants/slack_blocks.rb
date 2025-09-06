@@ -43,11 +43,7 @@ module SlackBlocks
   def self.standup_modal_view(channel_id: nil)
     # Determine the label for "yesterday" based on current day
     today = Date.current
-    yesterday_label = if today.monday?
-                       "On Friday"
-                     else
-                       "Yesterday"
-                     end
+    yesterday_label = today.monday? ? "On Friday" : "Yesterday"
 
     {
       type: "modal",

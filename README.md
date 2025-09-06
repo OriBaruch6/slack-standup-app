@@ -105,7 +105,7 @@ StandupReminderJob.perform_now(channel_id: "C09DJNCLTU6")
 
 #### Demo Video
 <video controls width="100%">
-  <source src="video/standup-video.mov" type="video/mp4">
+  <source src="video/standup-video.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 

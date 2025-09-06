@@ -41,7 +41,7 @@ class SlackController < ApplicationController
     view_state = payload["view"]["state"]["values"]
     user_id = payload["user"]["id"]
     team_id = payload["team"]["id"]
-    channel_id = payload["view"]["private_metadata"] 
+    channel_id = payload["view"]["private_metadata"]
     # Extract form values
     standup_data = extract_standup_data(view_state, user_id, channel_id)
 
@@ -51,7 +51,7 @@ class SlackController < ApplicationController
     # Save standup
     standup = Standup.create!(
       user_id: user_id,
-      channel_id: channel_id, 
+      channel_id: channel_id,
       date: standup_data[:date],
       yesterday: standup_data[:yesterday],
       today: standup_data[:today],
