@@ -30,5 +30,3 @@ class SlackClient
     @client.views_open(trigger_id: trigger_id, view: view)
   end
 end
-
-

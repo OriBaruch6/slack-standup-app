@@ -1,5 +1,7 @@
 
 class SlackController < ApplicationController
+  # Skip CSRF protection for Slack webhooks
+  skip_before_action :verify_authenticity_token, only: [:interactive]
 
   # Handle Slack interactive components (buttons, modals, etc.)
   def interactive
@@ -24,14 +26,13 @@ class SlackController < ApplicationController
   # Handle button clicks - open the standup modal
   def handle_block_actions(payload)
     trigger_id = payload["trigger_id"]
-    user_id = payload["user"]["id"]
-    channel_id = payload["channel"]["id"]
+    channel_id = payload["container"]["channel_id"] # Get from container
 
     slack_client = SlackClient.new
-    modal_view = build_standup_modal(user_id, channel_id)
-    
+    modal_view = SlackBlocks.standup_modal_view(channel_id: channel_id)
+
     slack_client.open_modal(trigger_id: trigger_id, view: modal_view)
-    
+
     head :ok
   end
 
@@ -39,13 +40,26 @@ class SlackController < ApplicationController
   def handle_view_submission(payload)
     view_state = payload["view"]["state"]["values"]
     user_id = payload["user"]["id"]
-    channel_id = payload["channel"]["id"]
-
+    team_id = payload["team"]["id"]
+    channel_id = payload["view"]["private_metadata"] # Get from private_metadata
     # Extract form values
     standup_data = extract_standup_data(view_state, user_id, channel_id)
-    
-    Rails.logger.info "Standup submitted: #{standup_data}"
-    
+
+    # Find or create user
+    user = find_or_create_user(user_id, team_id)
+
+    # Save standup
+    standup = Standup.create!(
+      user_id: user_id,
+      channel_id: channel_id, # Now we have the actual channel_id!
+      date: standup_data[:date],
+      yesterday: standup_data[:yesterday],
+      today: standup_data[:today],
+      blocker: standup_data[:blocker]
+    )
+
+    Rails.logger.info "Standup saved: #{standup.id}"
+
     # Return ack
     render json: { response_action: "clear" }
   end
@@ -56,16 +70,11 @@ class SlackController < ApplicationController
     head :ok
   end
 
-  # Build the standup modal view
-  def build_standup_modal(user_id, channel_id)
-    SlackBlocks.standup_modal_view
-  end
-
   # Extract standup data from form submission
   def extract_standup_data(view_state, user_id, channel_id)
     {
       user_id: user_id,
-      channel_id: channel_id,
+      channel_id: channel_id || nil,
       date: Date.current,
       yesterday: view_state.dig(SlackBlocks::YESTERDAY_BLOCK_ID, SlackBlocks::YESTERDAY_ACTION_ID, "value"),
       today: view_state.dig(SlackBlocks::TODAY_BLOCK_ID, SlackBlocks::TODAY_ACTION_ID, "value"),
@@ -73,4 +82,23 @@ class SlackController < ApplicationController
     }
   end
 
+  # Find or create user from Slack payload
+  def find_or_create_user(user_id, team_id)
+    user = User.find_by(slack_user_id: user_id)
+
+    unless user
+      # Find or create team first
+      team = Team.find_or_create_by(slack_user_team: team_id)
+
+      # User Creation
+      user = User.create!(
+        slack_user_id: user_id,
+        slack_user_team: team_id,
+        display_name: "User #{user_id}",
+        real_name: "User #{user_id}"
+      )
+    end
+
+    user
+  end
 end

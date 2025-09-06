@@ -5,15 +5,15 @@ module SlackBlocks
   # Button action ID for opening the standup modal
   OPEN_STANDUP_ACTION_ID = "open_standup_modal"
 
-  
+
   STANDUP_CALLBACK_ID = "standup_submission"
 
-  
+
   YESTERDAY_BLOCK_ID = "yesterday_block"
   TODAY_BLOCK_ID = "today_block"
   BLOCKER_BLOCK_ID = "blocker_block"
 
-  
+
   YESTERDAY_ACTION_ID = "yesterday_input"
   TODAY_ACTION_ID = "today_input"
   BLOCKER_ACTION_ID = "blocker_input"
@@ -40,10 +40,11 @@ module SlackBlocks
   end
 
   # Build the standup modal view
-  def self.standup_modal_view
+  def self.standup_modal_view(channel_id: nil)
     {
       type: "modal",
       callback_id: STANDUP_CALLBACK_ID,
+      private_metadata: channel_id,
       title: {
         type: "plain_text",
         text: "Daily Standup"
