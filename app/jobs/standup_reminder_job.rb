@@ -26,7 +26,7 @@ class StandupReminderJob < ApplicationJob
 
     # Post the message to Slack
     response = slack.post_message(channel: channel_id, text: fallback_txt, blocks: blocks)
-    
+
     # Create a StandupReminder record
     if response["ok"]
       StandupReminder.create!(

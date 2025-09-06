@@ -1,7 +1,7 @@
 
 class SlackController < ApplicationController
   # Skip CSRF protection for Slack webhooks
-  skip_before_action :verify_authenticity_token, only: [:interactive]
+  skip_before_action :verify_authenticity_token, only: [ :interactive ]
 
   # Handle Slack interactive components (buttons, modals, etc.)
   def interactive
