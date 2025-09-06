@@ -53,4 +53,6 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
+          SLACK_BOT_TOKEN: "xoxb-test-token"
+          SLACK_SIGNING_SECRET: "test-signing-secret"
         run: bin/rails db:test:prepare test
