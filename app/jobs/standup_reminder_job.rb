@@ -8,10 +8,11 @@ class StandupReminderJob < ApplicationJob
   # - channel_id: Slack channel ID to post into (e.g., "C0123456789")
   # - text: Optional override for fallback/plain text
   def perform(channel_id:, text: nil)
+    Rails.logger.info "[StandupReminderJob] - [perform] - start for channel #{channel_id}"
     # Skip if it's weekend (Saturday = 6, Sunday = 0)
     today = Date.current
     if today.saturday? || today.sunday?
-      Rails.logger.info "Skipping standup reminder on weekend: #{today.strftime('%A')}"
+      Rails.logger.info "[StandupReminderJob] - [perform] - skipping weekend: #{today.strftime('%A')}"
       return
     end
 
@@ -34,9 +35,9 @@ class StandupReminderJob < ApplicationJob
         message_ts: response["ts"],
         posted_at: Time.current
       )
-      Rails.logger.info "Standup reminder posted and recorded: #{response["ts"]}"
+      Rails.logger.info "[StandupReminderJob] - [perform] - posted and recorded: #{response["ts"]}"
     rescue SlackApiError => e
-      Rails.logger.error "Failed to post standup reminder: #{e.message}"
+      Rails.logger.error "[StandupReminderJob] - [perform] - failed to post reminder: #{e.message}"
       raise e
     end
   end
