@@ -579,7 +579,11 @@ Job → Slack Message → User Click → Modal → Form Submit → Database
   "response_action": "clear"
 }
 ```
-
+## Logs Structure
+- Structured Application Logs:
+  - All logs will follow the format: [FileName] - [methodName] - message.
+    - Example: [SlackController] - [handle_view_submission] - Standup created
+  - This makes it easy to correlate logs, traces, and metrics across the system.
 ## Phase 2: Observability and Intelligence
 
 In the next phase, I would focus on production readiness with better visibility and smarter insights.
@@ -591,12 +595,6 @@ In the next phase, I would focus on production readiness with better visibility 
 - Intelligent Evaluation (MCP + AI Model):
   - Deploy an MCP powered AI evaluator to analyze standup usage and patterns.
   - Provide insights into team engagement, blockers frequency, and trends over time to improve effectiveness.
-
-- Structured Application Logs:
-  - All logs will follow the format: [FileName] - [methodName] - message.
-    - Example: [SlackController] - [handle_view_submission] - Standup created
-  - This makes it easy to correlate logs, traces, and metrics across the system.
-
 ## 📚 Additional Resources
 
 - [Slack Block Kit Documentation](https://api.slack.com/block-kit)
