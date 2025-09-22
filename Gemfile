@@ -49,5 +49,5 @@ group :development, :test do
 end
 
 gem "sidekiq", "~> 8.0"
-gem "slack-ruby-client", "~> 2.7"
+gem "slack-ruby-client", "~> 3.0"
 gem "dotenv-rails", "~> 3.1"
